@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SpinGO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Choose your account type and sign in</p>
+            </div>
+
+            <!-- Account Type Selection -->
+            <div class="account-type-selector">
+                <button class="account-type-btn active" data-type="individual">
+                    <i class="fas fa-bicycle"></i>
+                </button>
+                <button class="account-type-btn" data-type="business">
+                    <i class="fas fa-building"></i>
+                </button>
+                <button class="account-type-btn" data-type="delivery">
+                    <i class="fas fa-truck"></i>
+                </button>
+                <button class="account-type-btn" data-type="customer">
+                    <i class="fas fa-user"></i>
+                </button>
+            </div>
+
+            <!-- Account Type Details -->
+            <div class="account-type-details">
+                <div class="account-type-info active" id="individual-info">
+                    <div class="account-icon">
+                        <i class="fas fa-bicycle"></i>
+                    </div>
+                    <h3>Individual Owner</h3>
+                    <p>Rent out your personal bike</p>
+                </div>
+                <div class="account-type-info" id="business-info">
+                    <div class="account-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3>Business Owner</h3>
+                    <p>Manage your bike rental business</p>
+                </div>
+                <div class="account-type-info" id="delivery-info">
+                    <div class="account-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3>Delivery Partner</h3>
+                    <p>Rent bikes for delivery services</p>
+                </div>
+                <div class="account-type-info" id="customer-info">
+                    <div class="account-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3>Customer</h3>
+                    <p>Rent bikes for your adventures</p>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form" th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input type="email" id="username" name="username" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-signin">
+                    Sign In as <span id="account-type-text">Individual Owner</span>
+                </button>
+            </form>
+
+            <!-- Separator -->
+            <div class="auth-separator">
+                <span>OR</span>
+            </div>
+
+            <!-- Create Account -->
+            <div class="auth-footer">
+                <p>New to SpinGO?</p>
+                <a href="/register" class="btn btn-create-account">Create Account</a>
+            </div>
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/auth.js}"></script>
+</body>
+</html>

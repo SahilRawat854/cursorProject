@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: bike-rental-app
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/bike_rental_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+  
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-app-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.spingo: DEBUG
+    org.springframework.security: DEBUG

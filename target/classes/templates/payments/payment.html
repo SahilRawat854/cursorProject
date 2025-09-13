@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - SpinGO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/payment.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" class="logo">
+                    <i class="fas fa-bicycle"></i>
+                    <span>SpinGO</span>
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="/bikes" class="nav-link">Browse Bikes</a>
+                <a href="/bookings" class="nav-link">My Bookings</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="payment-page">
+                <!-- Back Button -->
+                <div class="back-button">
+                    <a th:href="@{/bikes/{id}(id=${booking.bike.id})}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Bike
+                    </a>
+                </div>
+
+                <div class="payment-container">
+                    <!-- Booking Summary -->
+                    <div class="booking-summary">
+                        <h2>Booking Summary</h2>
+                        <div class="summary-card">
+                            <div class="bike-info">
+                                <div class="bike-image">
+                                    <img th:src="${booking.bike.imageUrl != null ? booking.bike.imageUrl : '/images/bike-placeholder.jpg'}" 
+                                         th:alt="${booking.bike.name}">
+                                </div>
+                                <div class="bike-details">
+                                    <h3 th:text="${booking.bike.name}">Bike Name</h3>
+                                    <p th:text="${booking.bike.brand + ' ' + booking.bike.model + ' (' + booking.bike.year + ')'}">
+                                        Brand Model (Year)
+                                    </p>
+                                    <div class="bike-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span th:text="${booking.bike.location}">Location</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="booking-details">
+                                <div class="detail-row">
+                                    <span class="label">Booking Type:</span>
+                                    <span class="value" th:text="${booking.bookingType.name().replace('_', ' ')}">Daily</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Start Time:</span>
+                                    <span class="value" th:text="${#temporals.format(booking.startTime, 'dd MMM yyyy, HH:mm')}">01 Jan 2024, 10:00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">End Time:</span>
+                                    <span class="value" th:text="${#temporals.format(booking.endTime, 'dd MMM yyyy, HH:mm')}">02 Jan 2024, 10:00</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="label">Pickup Location:</span>
+                                    <span class="value" th:text="${booking.pickupLocation}">Location</span>
+                                </div>
+                                
+                                <div class="additional-services" th:if="${booking.helmetRequested || booking.navigationRequested}">
+                                    <h4>Additional Services</h4>
+                                    <div class="service-item" th:if="${booking.helmetRequested}">
+                                        <span>Helmet Rental</span>
+                                        <span th:text="'₹' + ${booking.helmetFee}">₹50</span>
+                                    </div>
+                                    <div class="service-item" th:if="${booking.navigationRequested}">
+                                        <span>Navigation System</span>
+                                        <span th:text="'₹' + ${booking.navigationFee}">₹100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <div class="payment-form-section">
+                        <h2>Payment Details</h2>
+                        <div class="payment-card">
+                            <div class="amount-display">
+                                <div class="amount-label">Total Amount</div>
+                                <div class="amount-value" th:text="'₹' + ${booking.totalAmount}">₹500</div>
+                            </div>
+
+                            <form class="payment-form" th:action="@{/payments/process}" method="post">
+                                <input type="hidden" name="bookingId" th:value="${booking.id}">
+                                
+                                <div class="payment-methods">
+                                    <h3>Select Payment Method</h3>
+                                    <div class="payment-options">
+                                        <div class="payment-option" th:each="method : ${paymentMethods}">
+                                            <input type="radio" 
+                                                   th:id="${method.name()}" 
+                                                   th:name="paymentMethod" 
+                                                   th:value="${method.name()}"
+                                                   th:checked="${method.name() == 'UPI'}">
+                                            <label th:for="${method.name()}" th:class="${method.name().toLowerCase()}">
+                                                <i th:class="'fas ' + ${getPaymentIcon(method.name())}"></i>
+                                                <span th:text="${method.name().replace('_', ' ')}">Payment Method</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Details Form -->
+                                <div class="payment-details" id="payment-details">
+                                    <div class="payment-method-form" id="upi-form">
+                                        <h4>UPI Payment</h4>
+                                        <div class="form-group">
+                                            <label for="upiId">UPI ID</label>
+                                            <input type="text" id="upiId" name="paymentDetails" placeholder="Enter your UPI ID" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="payment-method-form" id="card-form" style="display: none;">
+                                        <h4>Card Payment</h4>
+                                        <div class="form-group">
+                                            <label for="cardNumber">Card Number</label>
+                                            <input type="text" id="cardNumber" name="paymentDetails" placeholder="1234 5678 9012 3456" maxlength="19">
+                                        </div>
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label for="expiryDate">Expiry Date</label>
+                                                <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="cvv">CVV</label>
+                                                <input type="text" id="cvv" placeholder="123" maxlength="3">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="payment-method-form" id="netbanking-form" style="display: none;">
+                                        <h4>Net Banking</h4>
+                                        <div class="form-group">
+                                            <label for="bank">Select Bank</label>
+                                            <select id="bank" name="paymentDetails">
+                                                <option value="">Select your bank</option>
+                                                <option value="SBI">State Bank of India</option>
+                                                <option value="HDFC">HDFC Bank</option>
+                                                <option value="ICICI">ICICI Bank</option>
+                                                <option value="AXIS">Axis Bank</option>
+                                                <option value="KOTAK">Kotak Mahindra Bank</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="payment-method-form" id="wallet-form" style="display: none;">
+                                        <h4>Digital Wallet</h4>
+                                        <div class="form-group">
+                                            <label for="wallet">Select Wallet</label>
+                                            <select id="wallet" name="paymentDetails">
+                                                <option value="">Select your wallet</option>
+                                                <option value="PAYTM">Paytm</option>
+                                                <option value="PHONEPE">PhonePe</option>
+                                                <option value="GOOGLEPAY">Google Pay</option>
+                                                <option value="AMAZONPAY">Amazon Pay</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="payment-method-form" id="cash-form" style="display: none;">
+                                        <h4>Cash Payment</h4>
+                                        <p class="cash-info">
+                                            <i class="fas fa-info-circle"></i>
+                                            Payment will be collected at the time of bike pickup.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="payment-actions">
+                                    <button type="submit" class="btn btn-primary btn-large" id="pay-button">
+                                        <i class="fas fa-credit-card"></i> Pay Now
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Error/Success Messages -->
+    <div th:if="${error}" class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+    <div th:if="${success}" class="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <script th:src="@{/js/payment.js}"></script>
+</body>
+</html>

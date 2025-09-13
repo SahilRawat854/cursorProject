@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${bike.name} + ' - SpinGO'">Bike Details - SpinGO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/bikes.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" class="logo">
+                    <i class="fas fa-bicycle"></i>
+                    <span>SpinGO</span>
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="/bikes" class="nav-link">Browse Bikes</a>
+                <a href="/bookings" class="nav-link">My Bookings</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="bike-details-page">
+                <!-- Back Button -->
+                <div class="back-button">
+                    <a href="/bikes" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Bikes
+                    </a>
+                </div>
+
+                <div class="bike-details-grid">
+                    <!-- Bike Image -->
+                    <div class="bike-image-section">
+                        <div class="bike-main-image">
+                            <img th:src="${bike.imageUrl != null ? bike.imageUrl : '/images/bike-placeholder.jpg'}" 
+                                 th:alt="${bike.name}">
+                            <div class="bike-status-badge" th:classappend="${bike.status.name().toLowerCase()}">
+                                <span th:text="${bike.status.name().replace('_', ' ')}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bike Information -->
+                    <div class="bike-info-section">
+                        <div class="bike-header">
+                            <h1 th:text="${bike.name}">Bike Name</h1>
+                            <p class="bike-subtitle" th:text="${bike.brand + ' ' + bike.model + ' (' + bike.year + ')'}">
+                                Brand Model (Year)
+                            </p>
+                        </div>
+
+                        <!-- Bike Features -->
+                        <div class="bike-features-section">
+                            <h3>Features & Amenities</h3>
+                            <div class="features-grid">
+                                <div class="feature-item" th:if="${bike.hasHelmet}">
+                                    <i class="fas fa-hard-hat"></i>
+                                    <span>Helmet Included</span>
+                                </div>
+                                <div class="feature-item" th:if="${bike.hasNavigation}">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Navigation System</span>
+                                </div>
+                                <div class="feature-item" th:if="${bike.isInsured}">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Fully Insured</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-gas-pump"></i>
+                                    <span th:text="${bike.fuelType.name().replace('_', ' ')}">Fuel Type</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-cog"></i>
+                                    <span th:text="${bike.engineCapacity + 'cc'}">Engine Capacity</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-palette"></i>
+                                    <span th:text="${bike.color}">Color</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="bike-location-section">
+                            <h3>Pickup Location</h3>
+                            <div class="location-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span th:text="${bike.location}">Location</span>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="bike-description-section" th:if="${bike.description}">
+                            <h3>Description</h3>
+                            <p th:text="${bike.description}">Bike description goes here.</p>
+                        </div>
+                    </div>
+
+                    <!-- Booking Section -->
+                    <div class="booking-section">
+                        <div class="booking-card">
+                            <h3>Pricing</h3>
+                            <div class="pricing-grid">
+                                <div class="price-item">
+                                    <div class="price-label">Hourly Rate</div>
+                                    <div class="price-value" th:text="'₹' + ${bike.hourlyRate}">₹50</div>
+                                </div>
+                                <div class="price-item">
+                                    <div class="price-label">Daily Rate</div>
+                                    <div class="price-value" th:text="'₹' + ${bike.dailyRate}">₹500</div>
+                                </div>
+                                <div class="price-item">
+                                    <div class="price-label">Monthly Rate</div>
+                                    <div class="price-value" th:text="'₹' + ${bike.monthlyRate}">₹5000</div>
+                                </div>
+                            </div>
+
+                            <div class="additional-fees">
+                                <h4>Additional Services</h4>
+                                <div class="fee-item">
+                                    <span>Helmet Rental</span>
+                                    <span>₹50/day</span>
+                                </div>
+                                <div class="fee-item">
+                                    <span>Navigation System</span>
+                                    <span>₹100/day</span>
+                                </div>
+                            </div>
+
+                            <div class="booking-actions">
+                                <a th:href="@{/bookings/new/{id}(id=${bike.id})}" 
+                                   class="btn btn-primary btn-large"
+                                   th:if="${bike.status.name() == 'AVAILABLE'}">
+                                    <i class="fas fa-calendar-plus"></i> Book This Bike
+                                </a>
+                                <div class="unavailable-message" th:if="${bike.status.name() != 'AVAILABLE'}">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>This bike is currently unavailable</span>
+                                </div>
+                            </div>
+
+                            <!-- Owner Information -->
+                            <div class="owner-info">
+                                <h4>Owner Information</h4>
+                                <div class="owner-details">
+                                    <div class="owner-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="owner-text">
+                                        <div class="owner-name" th:text="${bike.owner.fullName}">Owner Name</div>
+                                        <div class="owner-type" th:text="${bike.owner.accountType.name().replace('_', ' ')}">Owner Type</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/bikes.js}"></script>
+</body>
+</html>

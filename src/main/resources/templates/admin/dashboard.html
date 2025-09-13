@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SpinGO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/css/admin.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" class="logo">
+                    <i class="fas fa-bicycle"></i>
+                    <span>SpinGO</span>
+                </a>
+            </div>
+            <nav class="nav-menu">
+                <a href="/admin/dashboard" class="nav-link active">Dashboard</a>
+                <a href="/admin/users" class="nav-link">Users</a>
+                <a href="/admin/bikes" class="nav-link">Bikes</a>
+                <a href="/admin/bookings" class="nav-link">Bookings</a>
+                <a href="/admin/payments" class="nav-link">Payments</a>
+                <a href="/admin/analytics" class="nav-link">Analytics</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="/logout" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="admin-dashboard">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>Admin Dashboard</h1>
+                    <p>Welcome to the SpinGO administration panel</p>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" th:text="${totalUsers}">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bicycle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" th:text="${totalBikes}">0</div>
+                            <div class="stat-label">Total Bikes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" th:text="${totalBookings}">0</div>
+                            <div class="stat-label">Total Bookings</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" th:text="'₹' + ${#numbers.formatDecimal(totalRevenue, 0, 0)}">₹0</div>
+                            <div class="stat-label">Total Revenue</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="activities-grid">
+                    <!-- Recent Users -->
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3>Recent Users</h3>
+                            <a href="/admin/users" class="btn btn-outline btn-sm">View All</a>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-list">
+                                <div class="activity-item" th:each="user : ${recentUsers}">
+                                    <div class="activity-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <div class="activity-title" th:text="${user.fullName}">User Name</div>
+                                        <div class="activity-subtitle" th:text="${user.accountType.name().replace('_', ' ')}">Account Type</div>
+                                    </div>
+                                    <div class="activity-status" th:classappend="${user.status.name().toLowerCase()}">
+                                        <span th:text="${user.status.name()}">Status</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Bikes -->
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3>Recent Bikes</h3>
+                            <a href="/admin/bikes" class="btn btn-outline btn-sm">View All</a>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-list">
+                                <div class="activity-item" th:each="bike : ${recentBikes}">
+                                    <div class="activity-avatar">
+                                        <i class="fas fa-bicycle"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <div class="activity-title" th:text="${bike.name}">Bike Name</div>
+                                        <div class="activity-subtitle" th:text="${bike.brand + ' ' + bike.model}">Brand Model</div>
+                                    </div>
+                                    <div class="activity-status" th:classappend="${bike.status.name().toLowerCase()}">
+                                        <span th:text="${bike.status.name().replace('_', ' ')}">Status</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Bookings -->
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3>Recent Bookings</h3>
+                            <a href="/admin/bookings" class="btn btn-outline btn-sm">View All</a>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-list">
+                                <div class="activity-item" th:each="booking : ${recentBookings}">
+                                    <div class="activity-avatar">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <div class="activity-title" th:text="${booking.bike.name}">Bike Name</div>
+                                        <div class="activity-subtitle" th:text="${booking.user.fullName}">User Name</div>
+                                    </div>
+                                    <div class="activity-status" th:classappend="${booking.status.name().toLowerCase()}">
+                                        <span th:text="${booking.status.name().replace('_', ' ')}">Status</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="actions-grid">
+                        <a href="/admin/users" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Manage Users</h4>
+                                <p>View and manage user accounts</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/bikes" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-bicycle"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Manage Bikes</h4>
+                                <p>View and manage bike listings</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/bookings" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Manage Bookings</h4>
+                                <p>View and manage bookings</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/admin/analytics" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Analytics</h4>
+                                <p>View detailed analytics</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:src="@{/js/admin.js}"></script>
+</body>
+</html>
