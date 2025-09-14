@@ -77,17 +77,72 @@ public class DataInitializer implements CommandLineRunner {
         );
 
         for (String city : cities) {
-            Location location = new Location();
-            location.setName(city + " Central");
-            location.setCity(city);
-            location.setAddress("Main Street, " + city);
-            location.setLatitude(19.0760 + (random.nextDouble() - 0.5) * 0.1);
-            location.setLongitude(72.8777 + (random.nextDouble() - 0.5) * 0.1);
-            location.setAvailableSlots(random.nextInt(20) + 10);
-            location.setTotalSlots(location.getAvailableSlots() + random.nextInt(10));
-            location.setType(Location.LocationType.PICKUP_DROP);
+            String pincode = String.format("%06d", 100000 + random.nextInt(900000));
+            String state = getStateForCity(city);
+            Double latitude = 19.0760 + (random.nextDouble() - 0.5) * 0.1;
+            Double longitude = 72.8777 + (random.nextDouble() - 0.5) * 0.1;
+            Integer availableSlots = random.nextInt(20) + 10;
+            Integer capacity = availableSlots + random.nextInt(10);
+            
+            Location location = locationService.createLocation(
+                city + " Central",
+                "Main Street, " + city,
+                city,
+                state,
+                pincode,
+                latitude,
+                longitude,
+                Location.LocationType.PICKUP_POINT
+            );
+            
+            location.setAvailableSlots(availableSlots);
+            location.setCapacity(capacity);
             location.setStatus(Location.LocationStatus.ACTIVE);
-            locationService.addLocation(location);
+            locationService.updateLocation(location);
+        }
+    }
+    
+    private String getStateForCity(String city) {
+        switch (city) {
+            case "Mumbai":
+            case "Pune":
+            case "Nagpur":
+            case "Thane":
+            case "Nashik":
+            case "Pimpri-Chinchwad":
+                return "Maharashtra";
+            case "Delhi":
+            case "Ghaziabad":
+                return "Delhi";
+            case "Bangalore":
+                return "Karnataka";
+            case "Chennai":
+                return "Tamil Nadu";
+            case "Kolkata":
+                return "West Bengal";
+            case "Hyderabad":
+            case "Visakhapatnam":
+                return "Telangana";
+            case "Ahmedabad":
+            case "Surat":
+            case "Vadodara":
+                return "Gujarat";
+            case "Jaipur":
+                return "Rajasthan";
+            case "Lucknow":
+            case "Kanpur":
+                return "Uttar Pradesh";
+            case "Indore":
+            case "Bhopal":
+                return "Madhya Pradesh";
+            case "Patna":
+                return "Bihar";
+            case "Ludhiana":
+                return "Punjab";
+            case "Agra":
+                return "Uttar Pradesh";
+            default:
+                return "Maharashtra";
         }
     }
 
@@ -218,7 +273,7 @@ public class DataInitializer implements CommandLineRunner {
                                      String.format("%04d", random.nextInt(9999)));
             bike.setDailyRate(new BigDecimal(300 + random.nextInt(700)));
             bike.setMonthlyRate(bike.getDailyRate().multiply(new BigDecimal(25)));
-            bike.setHourlyRate(bike.getDailyRate().divide(new BigDecimal(8), 2, BigDecimal.ROUND_HALF_UP));
+            bike.setHourlyRate(bike.getDailyRate().divide(new BigDecimal(8), 2, java.math.RoundingMode.HALF_UP));
             bike.setLocation("Mumbai, Maharashtra");
             bike.setDescription("Well-maintained " + bike.getName() + " with low mileage. Perfect for city rides.");
             bike.setHasHelmet(random.nextBoolean());
@@ -259,15 +314,14 @@ public class DataInitializer implements CommandLineRunner {
         List<Booking> bookings = bookingService.getAllBookings();
 
         for (Booking booking : bookings) {
-            if (booking.getPaymentStatus() == Booking.PaymentStatus.COMPLETED) {
-                Payment payment = new Payment();
-                payment.setBooking(booking);
-                payment.setAmount(booking.getTotalAmount());
-                payment.setPaymentMethod(Payment.PaymentMethod.values()[random.nextInt(Payment.PaymentMethod.values().length)]);
-                payment.setStatus(Payment.PaymentStatus.SUCCESS);
-                payment.setTransactionId("TXN" + System.currentTimeMillis() + random.nextInt(1000));
-                payment.setPaymentDate(booking.getStartTime().minusHours(1));
-                paymentService.processPayment(payment);
+            if (booking.getPaymentStatus() == Booking.PaymentStatus.PAID) {
+                Payment payment = paymentService.createPayment(booking, 
+                    Payment.PaymentMethod.values()[random.nextInt(Payment.PaymentMethod.values().length)]);
+                
+                // Simulate successful payment processing
+                String transactionId = payment.getTransactionId();
+                String gatewayResponse = "SUCCESS_" + System.currentTimeMillis();
+                paymentService.processPayment(transactionId, gatewayResponse);
             }
         }
     }
@@ -292,14 +346,14 @@ public class DataInitializer implements CommandLineRunner {
 
         for (int i = 0; i < Math.min(20, completedBookings.size()); i++) {
             Booking booking = completedBookings.get(i);
-            Review review = new Review();
-            review.setUser(booking.getUser());
-            review.setBike(booking.getBike());
-            review.setBooking(booking);
-            review.setRating(3 + random.nextInt(3));
-            review.setComment(reviewComments[random.nextInt(reviewComments.length)]);
+            Review review = reviewService.createReview(
+                booking.getUser(),
+                booking.getBike(),
+                booking,
+                3 + random.nextInt(3),
+                reviewComments[random.nextInt(reviewComments.length)]
+            );
             review.setCreatedAt(booking.getEndTime().plusDays(random.nextInt(7)));
-            reviewService.addReview(review);
         }
     }
 
@@ -320,14 +374,13 @@ public class DataInitializer implements CommandLineRunner {
         };
 
         for (int i = 0; i < 50; i++) {
-            Notification notification = new Notification();
-            notification.setUser(users.get(random.nextInt(users.size())));
-            notification.setTitle("SpinGO Notification");
-            notification.setMessage(notificationMessages[random.nextInt(notificationMessages.length)]);
-            notification.setType(Notification.NotificationType.values()[random.nextInt(Notification.NotificationType.values().length)]);
+            User user = users.get(random.nextInt(users.size()));
+            String message = notificationMessages[random.nextInt(notificationMessages.length)];
+            Notification.NotificationType type = Notification.NotificationType.values()[random.nextInt(Notification.NotificationType.values().length)];
+            
+            Notification notification = notificationService.createNotification(user, "SpinGO Notification", message, type);
             notification.setStatus(Notification.NotificationStatus.values()[random.nextInt(Notification.NotificationStatus.values().length)]);
             notification.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(30)));
-            notificationService.createNotification(notification);
         }
     }
 }
