@@ -88,8 +88,13 @@ public class AuthController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
         
+        if (authentication == null || !authentication.isAuthenticated() || 
+            authentication.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/login";
+        }
+        
+        User user = (User) authentication.getPrincipal();
         model.addAttribute("user", user);
         
         // Redirect based on user role
