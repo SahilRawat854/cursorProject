@@ -2,14 +2,28 @@ package com.spingo.config;
 
 import com.spingo.entity.Bike;
 import com.spingo.entity.User;
+import com.spingo.entity.Booking;
+import com.spingo.entity.Payment;
+import com.spingo.entity.Review;
+import com.spingo.entity.Location;
+import com.spingo.entity.Notification;
 import com.spingo.service.BikeService;
 import com.spingo.service.UserService;
+import com.spingo.service.BookingService;
+import com.spingo.service.PaymentService;
+import com.spingo.service.ReviewService;
+import com.spingo.service.LocationService;
+import com.spingo.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -21,198 +35,299 @@ public class DataInitializer implements CommandLineRunner {
     private BikeService bikeService;
 
     @Autowired
+    private BookingService bookingService;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private ReviewService reviewService;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private final Random random = new Random();
 
     @Override
     public void run(String... args) throws Exception {
         // Only initialize data if no users exist
         if (userService.getAllUsers().isEmpty()) {
+            initializeLocations();
             initializeUsers();
             initializeBikes();
+            initializeBookings();
+            initializePayments();
+            initializeReviews();
+            initializeNotifications();
+        }
+    }
+
+    private void initializeLocations() {
+        List<String> cities = Arrays.asList(
+            "Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", 
+            "Pune", "Ahmedabad", "Jaipur", "Surat", "Lucknow", "Kanpur",
+            "Nagpur", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Pimpri-Chinchwad",
+            "Patna", "Vadodara", "Ghaziabad", "Ludhiana", "Agra", "Nashik"
+        );
+
+        for (String city : cities) {
+            Location location = new Location();
+            location.setName(city + " Central");
+            location.setCity(city);
+            location.setAddress("Main Street, " + city);
+            location.setLatitude(19.0760 + (random.nextDouble() - 0.5) * 0.1);
+            location.setLongitude(72.8777 + (random.nextDouble() - 0.5) * 0.1);
+            location.setAvailableSlots(random.nextInt(20) + 10);
+            location.setTotalSlots(location.getAvailableSlots() + random.nextInt(10));
+            location.setType(Location.LocationType.PICKUP_DROP);
+            location.setStatus(Location.LocationStatus.ACTIVE);
+            locationService.addLocation(location);
         }
     }
 
     private void initializeUsers() {
         // Create admin user
-        User admin = new User();
-        admin.setUsername("admin");
-        admin.setEmail("admin@spingo.com");
-        admin.setPhone("9999999999");
-        admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.setFullName("System Administrator");
-        admin.setAge(30);
-        admin.setAddress("Admin Office, Mumbai, Maharashtra");
-        admin.setDrivingLicense("ADMIN001");
-        admin.setAccountType(User.AccountType.INDIVIDUAL_OWNER);
+        User admin = createUser("admin", "admin@spingo.com", "9999999999", "admin123", 
+                               "System Administrator", 30, "Admin Office, Mumbai, Maharashtra", 
+                               "ADMIN001", User.AccountType.INDIVIDUAL_OWNER);
         userService.registerUser(admin);
 
-        // Create sample bike owner
-        User owner1 = new User();
-        owner1.setUsername("john_owner");
-        owner1.setEmail("john@example.com");
-        owner1.setPhone("9876543210");
-        owner1.setPassword(passwordEncoder.encode("password123"));
-        owner1.setFullName("John Smith");
-        owner1.setAge(28);
-        owner1.setAddress("123 Main Street, Bangalore, Karnataka");
-        owner1.setDrivingLicense("DL001234567");
-        owner1.setAccountType(User.AccountType.INDIVIDUAL_OWNER);
-        userService.registerUser(owner1);
+        // Create individual bike owners
+        String[] ownerNames = {"John Smith", "Sarah Johnson", "Mike Wilson", "Emily Davis", "David Brown", "Lisa Anderson"};
+        String[] ownerCities = {"Bangalore", "Delhi", "Mumbai", "Chennai", "Pune", "Hyderabad"};
+        
+        for (int i = 0; i < ownerNames.length; i++) {
+            User owner = createUser(
+                "owner_" + (i + 1),
+                "owner" + (i + 1) + "@example.com",
+                "987654321" + i,
+                "password123",
+                ownerNames[i],
+                25 + random.nextInt(15),
+                "123 Main Street, " + ownerCities[i],
+                "DL00123456" + i,
+                User.AccountType.INDIVIDUAL_OWNER
+            );
+            userService.registerUser(owner);
+        }
 
-        // Create sample customer
-        User customer1 = new User();
-        customer1.setUsername("jane_customer");
-        customer1.setEmail("jane@example.com");
-        customer1.setPhone("9876543211");
-        customer1.setPassword(passwordEncoder.encode("password123"));
-        customer1.setFullName("Jane Doe");
-        customer1.setAge(25);
-        customer1.setAddress("456 Park Avenue, Delhi, NCR");
-        customer1.setDrivingLicense("DL001234568");
-        customer1.setAccountType(User.AccountType.CUSTOMER);
-        userService.registerUser(customer1);
+        // Create business owners
+        String[] businessNames = {"Bike Rental Co", "City Bikes Ltd", "Urban Rides", "Metro Bikes", "Quick Rentals"};
+        String[] businessCities = {"Mumbai", "Delhi", "Bangalore", "Chennai", "Pune"};
+        
+        for (int i = 0; i < businessNames.length; i++) {
+            User businessOwner = createUser(
+                "business_" + (i + 1),
+                "business" + (i + 1) + "@company.com",
+                "987654322" + i,
+                "password123",
+                businessNames[i],
+                35 + random.nextInt(10),
+                "Business Park, " + businessCities[i],
+                "DL00123457" + i,
+                User.AccountType.BUSINESS_OWNER
+            );
+            userService.registerUser(businessOwner);
+        }
 
-        // Create business owner
-        User businessOwner = new User();
-        businessOwner.setUsername("bike_rental_co");
-        businessOwner.setEmail("info@bikerental.com");
-        businessOwner.setPhone("9876543212");
-        businessOwner.setPassword(passwordEncoder.encode("password123"));
-        businessOwner.setFullName("Bike Rental Company");
-        businessOwner.setAge(35);
-        businessOwner.setAddress("789 Business Park, Pune, Maharashtra");
-        businessOwner.setDrivingLicense("DL001234569");
-        businessOwner.setAccountType(User.AccountType.BUSINESS_OWNER);
-        userService.registerUser(businessOwner);
+        // Create customers
+        String[] customerNames = {"Alice Johnson", "Bob Smith", "Carol Davis", "Daniel Wilson", "Emma Brown", 
+                                 "Frank Miller", "Grace Lee", "Henry Taylor", "Ivy Chen", "Jack Anderson"};
+        
+        for (int i = 0; i < customerNames.length; i++) {
+            User customer = createUser(
+                "customer_" + (i + 1),
+                "customer" + (i + 1) + "@email.com",
+                "987654323" + i,
+                "password123",
+                customerNames[i],
+                20 + random.nextInt(20),
+                "Residential Area, Mumbai",
+                "DL00123458" + i,
+                User.AccountType.CUSTOMER
+            );
+            userService.registerUser(customer);
+        }
 
-        // Create delivery partner
-        User deliveryPartner = new User();
-        deliveryPartner.setUsername("delivery_partner");
-        deliveryPartner.setEmail("delivery@example.com");
-        deliveryPartner.setPhone("9876543213");
-        deliveryPartner.setPassword(passwordEncoder.encode("password123"));
-        deliveryPartner.setFullName("Mike Johnson");
-        deliveryPartner.setAge(32);
-        deliveryPartner.setAddress("321 Delivery Hub, Chennai, Tamil Nadu");
-        deliveryPartner.setDrivingLicense("DL001234570");
-        deliveryPartner.setAccountType(User.AccountType.DELIVERY_PARTNER);
-        userService.registerUser(deliveryPartner);
+        // Create delivery partners
+        String[] deliveryNames = {"Raj Kumar", "Amit Singh", "Vikram Patel", "Suresh Reddy"};
+        
+        for (int i = 0; i < deliveryNames.length; i++) {
+            User deliveryPartner = createUser(
+                "delivery_" + (i + 1),
+                "delivery" + (i + 1) + "@partner.com",
+                "987654324" + i,
+                "password123",
+                deliveryNames[i],
+                25 + random.nextInt(15),
+                "Delivery Hub, Mumbai",
+                "DL00123459" + i,
+                User.AccountType.DELIVERY_PARTNER
+            );
+            userService.registerUser(deliveryPartner);
+        }
+    }
+
+    private User createUser(String username, String email, String phone, String password, 
+                           String fullName, int age, String address, String drivingLicense, 
+                           User.AccountType accountType) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setFullName(fullName);
+        user.setAge(age);
+        user.setAddress(address);
+        user.setDrivingLicense(drivingLicense);
+        user.setAccountType(accountType);
+        user.setCity(address.split(",")[1].trim());
+        user.setState(address.split(",")[2].trim());
+        return user;
     }
 
     private void initializeBikes() {
-        // Get the bike owner
-        User owner = userService.findByUsername("john_owner").orElse(null);
-        User businessOwner = userService.findByUsername("bike_rental_co").orElse(null);
+        List<User> owners = userService.getAllUsers().stream()
+            .filter(user -> user.getAccountType() == User.AccountType.INDIVIDUAL_OWNER || 
+                           user.getAccountType() == User.AccountType.BUSINESS_OWNER)
+            .toList();
 
-        if (owner != null) {
-            // Create sample bikes for individual owner
-            Bike bike1 = new Bike();
-            bike1.setName("Honda Activa 6G");
-            bike1.setBrand("Honda");
-            bike1.setModel("Activa 6G");
-            bike1.setYear(2023);
-            bike1.setType(Bike.BikeType.SCOOTER);
-            bike1.setFuelType(Bike.FuelType.PETROL);
-            bike1.setEngineCapacity(110);
-            bike1.setColor("Red");
-            bike1.setRegistrationNumber("KA01AB1234");
-            bike1.setDailyRate(new BigDecimal("500"));
-            bike1.setMonthlyRate(new BigDecimal("5000"));
-            bike1.setHourlyRate(new BigDecimal("50"));
-            bike1.setLocation("Bangalore, Karnataka");
-            bike1.setDescription("Well-maintained Honda Activa with low mileage. Perfect for city rides.");
-            bike1.setHasHelmet(true);
-            bike1.setHasNavigation(false);
-            bike1.setIsInsured(true);
-            bike1.setOwner(owner);
-            bikeService.addBike(bike1);
+        String[] bikeBrands = {"Honda", "Bajaj", "TVS", "Yamaha", "Hero", "Royal Enfield", "KTM", "Suzuki"};
+        String[] bikeModels = {"Activa", "Pulsar", "Jupiter", "R15", "Splendor", "Classic", "Duke", "Access"};
+        String[] colors = {"Red", "Blue", "Black", "White", "Silver", "Green", "Yellow", "Orange"};
+        String[] conditions = {"Excellent", "Good", "Very Good", "Fair", "Like New"};
 
-            Bike bike2 = new Bike();
-            bike2.setName("Bajaj Pulsar 150");
-            bike2.setBrand("Bajaj");
-            bike2.setModel("Pulsar 150");
-            bike2.setYear(2022);
-            bike2.setType(Bike.BikeType.MOTORCYCLE);
-            bike2.setFuelType(Bike.FuelType.PETROL);
-            bike2.setEngineCapacity(150);
-            bike2.setColor("Black");
-            bike2.setRegistrationNumber("KA02CD5678");
-            bike2.setDailyRate(new BigDecimal("600"));
-            bike2.setMonthlyRate(new BigDecimal("6000"));
-            bike2.setHourlyRate(new BigDecimal("60"));
-            bike2.setLocation("Bangalore, Karnataka");
-            bike2.setDescription("Sporty Bajaj Pulsar with excellent performance. Great for highway rides.");
-            bike2.setHasHelmet(true);
-            bike2.setHasNavigation(true);
-            bike2.setIsInsured(true);
-            bike2.setOwner(owner);
-            bikeService.addBike(bike2);
+        for (int i = 0; i < 50; i++) {
+            Bike bike = new Bike();
+            bike.setName(bikeBrands[i % bikeBrands.length] + " " + bikeModels[i % bikeModels.length]);
+            bike.setBrand(bikeBrands[i % bikeBrands.length]);
+            bike.setModel(bikeModels[i % bikeModels.length]);
+            bike.setYear(2020 + random.nextInt(4));
+            bike.setType(Bike.BikeType.values()[random.nextInt(Bike.BikeType.values().length)]);
+            bike.setFuelType(Bike.FuelType.values()[random.nextInt(Bike.FuelType.values().length)]);
+            bike.setEngineCapacity(100 + random.nextInt(200));
+            bike.setColor(colors[i % colors.length]);
+            bike.setRegistrationNumber("KA" + String.format("%02d", random.nextInt(99)) + 
+                                     (char)(65 + random.nextInt(26)) + (char)(65 + random.nextInt(26)) + 
+                                     String.format("%04d", random.nextInt(9999)));
+            bike.setDailyRate(new BigDecimal(300 + random.nextInt(700)));
+            bike.setMonthlyRate(bike.getDailyRate().multiply(new BigDecimal(25)));
+            bike.setHourlyRate(bike.getDailyRate().divide(new BigDecimal(8), 2, BigDecimal.ROUND_HALF_UP));
+            bike.setLocation("Mumbai, Maharashtra");
+            bike.setDescription("Well-maintained " + bike.getName() + " with low mileage. Perfect for city rides.");
+            bike.setHasHelmet(random.nextBoolean());
+            bike.setHasNavigation(random.nextBoolean());
+            bike.setIsInsured(true);
+            bike.setMileage(random.nextInt(50000));
+            bike.setCondition(conditions[random.nextInt(conditions.length)]);
+            bike.setAverageRating(3.5 + random.nextDouble() * 1.5);
+            bike.setTotalReviews(random.nextInt(50));
+            bike.setOwner(owners.get(random.nextInt(owners.size())));
+            bikeService.addBike(bike);
         }
+    }
 
-        if (businessOwner != null) {
-            // Create sample bikes for business owner
-            Bike bike3 = new Bike();
-            bike3.setName("TVS Jupiter");
-            bike3.setBrand("TVS");
-            bike3.setModel("Jupiter");
-            bike3.setYear(2023);
-            bike3.setType(Bike.BikeType.SCOOTER);
-            bike3.setFuelType(Bike.FuelType.PETROL);
-            bike3.setEngineCapacity(110);
-            bike3.setColor("Blue");
-            bike3.setRegistrationNumber("MH12EF9012");
-            bike3.setDailyRate(new BigDecimal("450"));
-            bike3.setMonthlyRate(new BigDecimal("4500"));
-            bike3.setHourlyRate(new BigDecimal("45"));
-            bike3.setLocation("Pune, Maharashtra");
-            bike3.setDescription("Comfortable TVS Jupiter with good fuel efficiency. Ideal for daily commuting.");
-            bike3.setHasHelmet(true);
-            bike3.setHasNavigation(false);
-            bike3.setIsInsured(true);
-            bike3.setOwner(businessOwner);
-            bikeService.addBike(bike3);
+    private void initializeBookings() {
+        List<User> customers = userService.getAllUsers().stream()
+            .filter(user -> user.getAccountType() == User.AccountType.CUSTOMER)
+            .toList();
+        List<Bike> bikes = bikeService.getAllBikes();
 
-            Bike bike4 = new Bike();
-            bike4.setName("Yamaha R15 V4");
-            bike4.setBrand("Yamaha");
-            bike4.setModel("R15 V4");
-            bike4.setYear(2023);
-            bike4.setType(Bike.BikeType.SPORTS_BIKE);
-            bike4.setFuelType(Bike.FuelType.PETROL);
-            bike4.setEngineCapacity(155);
-            bike4.setColor("Blue");
-            bike4.setRegistrationNumber("MH12GH3456");
-            bike4.setDailyRate(new BigDecimal("800"));
-            bike4.setMonthlyRate(new BigDecimal("8000"));
-            bike4.setHourlyRate(new BigDecimal("80"));
-            bike4.setLocation("Pune, Maharashtra");
-            bike4.setDescription("High-performance Yamaha R15 V4. Perfect for sports bike enthusiasts.");
-            bike4.setHasHelmet(true);
-            bike4.setHasNavigation(true);
-            bike4.setIsInsured(true);
-            bike4.setOwner(businessOwner);
-            bikeService.addBike(bike4);
+        for (int i = 0; i < 30; i++) {
+            Booking booking = new Booking();
+            booking.setUser(customers.get(random.nextInt(customers.size())));
+            booking.setBike(bikes.get(random.nextInt(bikes.size())));
+            booking.setStartTime(LocalDateTime.now().minusDays(random.nextInt(30)));
+            booking.setEndTime(booking.getStartTime().plusHours(1 + random.nextInt(72)));
+            booking.setBookingType(Booking.BookingType.values()[random.nextInt(Booking.BookingType.values().length)]);
+            booking.setStatus(Booking.BookingStatus.values()[random.nextInt(Booking.BookingStatus.values().length)]);
+            booking.setPaymentStatus(Booking.PaymentStatus.values()[random.nextInt(Booking.PaymentStatus.values().length)]);
+            booking.setTotalAmount(booking.getBike().getDailyRate().multiply(new BigDecimal(booking.getEndTime().getHour() - booking.getStartTime().getHour())));
+            booking.setPickupLocation("Mumbai Central");
+            booking.setDropoffLocation("Mumbai Central");
+            bookingService.createBooking(booking);
+        }
+    }
 
-            Bike bike5 = new Bike();
-            bike5.setName("Hero Electric Optima");
-            bike5.setBrand("Hero Electric");
-            bike5.setModel("Optima");
-            bike5.setYear(2023);
-            bike5.setType(Bike.BikeType.ELECTRIC_BIKE);
-            bike5.setFuelType(Bike.FuelType.ELECTRIC);
-            bike5.setEngineCapacity(0);
-            bike5.setColor("White");
-            bike5.setRegistrationNumber("MH12IJ7890");
-            bike5.setDailyRate(new BigDecimal("400"));
-            bike5.setMonthlyRate(new BigDecimal("4000"));
-            bike5.setHourlyRate(new BigDecimal("40"));
-            bike5.setLocation("Pune, Maharashtra");
-            bike5.setDescription("Eco-friendly Hero Electric Optima. Zero emissions, perfect for city rides.");
-            bike5.setHasHelmet(true);
-            bike5.setHasNavigation(false);
-            bike5.setIsInsured(true);
-            bike5.setOwner(businessOwner);
-            bikeService.addBike(bike5);
+    private void initializePayments() {
+        List<Booking> bookings = bookingService.getAllBookings();
+
+        for (Booking booking : bookings) {
+            if (booking.getPaymentStatus() == Booking.PaymentStatus.COMPLETED) {
+                Payment payment = new Payment();
+                payment.setBooking(booking);
+                payment.setAmount(booking.getTotalAmount());
+                payment.setPaymentMethod(Payment.PaymentMethod.values()[random.nextInt(Payment.PaymentMethod.values().length)]);
+                payment.setStatus(Payment.PaymentStatus.SUCCESS);
+                payment.setTransactionId("TXN" + System.currentTimeMillis() + random.nextInt(1000));
+                payment.setPaymentDate(booking.getStartTime().minusHours(1));
+                paymentService.processPayment(payment);
+            }
+        }
+    }
+
+    private void initializeReviews() {
+        List<Booking> completedBookings = bookingService.getAllBookings().stream()
+            .filter(booking -> booking.getStatus() == Booking.BookingStatus.COMPLETED)
+            .toList();
+
+        String[] reviewComments = {
+            "Great bike, very smooth ride!",
+            "Excellent service, highly recommended.",
+            "Good condition bike, will book again.",
+            "Perfect for city rides, fuel efficient.",
+            "Clean bike, good customer service.",
+            "Amazing experience, bike was in top condition.",
+            "Quick pickup and drop, convenient service.",
+            "Good value for money, reliable bike.",
+            "Professional service, bike was well maintained.",
+            "Easy booking process, bike was as described."
+        };
+
+        for (int i = 0; i < Math.min(20, completedBookings.size()); i++) {
+            Booking booking = completedBookings.get(i);
+            Review review = new Review();
+            review.setUser(booking.getUser());
+            review.setBike(booking.getBike());
+            review.setBooking(booking);
+            review.setRating(3 + random.nextInt(3));
+            review.setComment(reviewComments[random.nextInt(reviewComments.length)]);
+            review.setCreatedAt(booking.getEndTime().plusDays(random.nextInt(7)));
+            reviewService.addReview(review);
+        }
+    }
+
+    private void initializeNotifications() {
+        List<User> users = userService.getAllUsers();
+
+        String[] notificationMessages = {
+            "Welcome to SpinGO! Start exploring bikes near you.",
+            "Your booking has been confirmed.",
+            "Your bike is ready for pickup.",
+            "Payment successful for your booking.",
+            "Thank you for your review!",
+            "New bikes available in your area.",
+            "Special offer: 20% off on weekend bookings.",
+            "Your booking has been completed successfully.",
+            "Rate your recent ride experience.",
+            "Maintenance scheduled for your bike."
+        };
+
+        for (int i = 0; i < 50; i++) {
+            Notification notification = new Notification();
+            notification.setUser(users.get(random.nextInt(users.size())));
+            notification.setTitle("SpinGO Notification");
+            notification.setMessage(notificationMessages[random.nextInt(notificationMessages.length)]);
+            notification.setType(Notification.NotificationType.values()[random.nextInt(Notification.NotificationType.values().length)]);
+            notification.setStatus(Notification.NotificationStatus.values()[random.nextInt(Notification.NotificationStatus.values().length)]);
+            notification.setCreatedAt(LocalDateTime.now().minusDays(random.nextInt(30)));
+            notificationService.createNotification(notification);
         }
     }
 }
