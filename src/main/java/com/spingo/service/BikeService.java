@@ -48,6 +48,10 @@ public class BikeService {
         return bikeRepository.findAvailableBikesByMaxRate(maxRate);
     }
 
+    public Optional<Bike> getBikeById(Long id) {
+        return bikeRepository.findById(id);
+    }
+    
     public Optional<Bike> findById(Long id) {
         return bikeRepository.findById(id);
     }
@@ -80,5 +84,48 @@ public class BikeService {
         } else {
             return getAvailableBikes();
         }
+    }
+    
+    // Advanced search method
+    public List<Bike> searchBikes(String city, String bikeType, String fuelType, 
+                                BigDecimal minPrice, BigDecimal maxPrice, 
+                                Integer minYear, Integer maxYear, Boolean hasHelmet, 
+                                Boolean hasNavigation, Boolean isInsured, Double minRating) {
+        return bikeRepository.findBikesByAdvancedSearch(city, bikeType, fuelType, minPrice, 
+                                                       maxPrice, minYear, maxYear, hasHelmet, 
+                                                       hasNavigation, isInsured, minRating);
+    }
+    
+    public List<Bike> findBikesNearLocation(Double latitude, Double longitude, Double radius) {
+        // Calculate bounding box for the radius
+        double latRange = radius / 111.0; // Approximate km per degree latitude
+        double lngRange = radius / (111.0 * Math.cos(Math.toRadians(latitude))); // Approximate km per degree longitude
+        
+        double minLat = latitude - latRange;
+        double maxLat = latitude + latRange;
+        double minLng = longitude - lngRange;
+        double maxLng = longitude + lngRange;
+        
+        return bikeRepository.findBikesNearLocation(minLat, maxLat, minLng, maxLng);
+    }
+    
+    public List<Bike> getPopularBikes() {
+        return bikeRepository.findPopularBikes();
+    }
+    
+    public List<Bike> getRecommendedBikes() {
+        return bikeRepository.findRecommendedBikes();
+    }
+    
+    public List<Bike> getBikesByRating(Double minRating) {
+        return bikeRepository.findBikesByMinRating(minRating);
+    }
+    
+    public List<Bike> getRecentlyAddedBikes() {
+        return bikeRepository.findRecentlyAddedBikes();
+    }
+    
+    public List<Bike> getBikesByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
+        return bikeRepository.findBikesByPriceRange(minPrice, maxPrice);
     }
 }

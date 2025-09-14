@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class HomeController {
@@ -30,5 +31,16 @@ public class HomeController {
     @GetMapping("/home")
     public String homePage() {
         return "redirect:/";
+    }
+    
+    @GetMapping("/register")
+    public String register(Model model) {
+        return "auth/register";
+    }
+    
+    @GetMapping("/register/step2")
+    public String registerStep2(@RequestParam String type, Model model) {
+        model.addAttribute("accountType", type);
+        return "auth/register-step2";
     }
 }

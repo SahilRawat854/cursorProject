@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - SpinGO</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+</head>
+<body class="auth-body">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <span class="page-title">Bike Rental Web App Pages</span>
+                <button class="share-btn">Share</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <span>SpinGO</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <a href="/search" class="back-link">Back to Search</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding-top: 2rem;">
+        <div class="section-header">
+            <h2>Search Results</h2>
+            <p th:text="'Found ' + ${#lists.size(bikes)} + ' bikes matching your criteria'">Found bikes matching your criteria</p>
+        </div>
+        
+        <div class="bikes-grid" th:if="${#lists.size(bikes) > 0}">
+            <div class="bike-card" th:each="bike : ${bikes}">
+                <div class="bike-image">
+                    <img th:src="${bike.imageUrl != null ? bike.imageUrl : '/images/default-bike.jpg'}" 
+                         th:alt="${bike.name}" loading="lazy">
+                    <div class="bike-status" th:text="${bike.status}">Available</div>
+                </div>
+                <div class="bike-info">
+                    <h3 th:text="${bike.name}">Bike Name</h3>
+                    <p class="bike-details">
+                        <span th:text="${bike.brand + ' ' + bike.model}">Brand Model</span>
+                        <span th:text="${bike.year}">2023</span>
+                    </p>
+                    <div class="bike-features">
+                        <span class="feature" th:if="${bike.hasHelmet}">
+                            <i class="fas fa-hard-hat"></i> Helmet
+                        </span>
+                        <span class="feature" th:if="${bike.hasNavigation}">
+                            <i class="fas fa-map-marker-alt"></i> Navigation
+                        </span>
+                        <span class="feature" th:if="${bike.isInsured}">
+                            <i class="fas fa-shield-alt"></i> Insured
+                        </span>
+                    </div>
+                    <div class="bike-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${bike.location}">Location</span>
+                    </div>
+                    <div class="bike-pricing">
+                        <div class="price-item">
+                            <span class="price-label">Hourly</span>
+                            <span class="price-value" th:text="'₹' + ${bike.hourlyRate}">₹50</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Daily</span>
+                            <span class="price-value" th:text="'₹' + ${bike.dailyRate}">₹500</span>
+                        </div>
+                        <div class="price-item">
+                            <span class="price-label">Monthly</span>
+                            <span class="price-value" th:text="'₹' + ${bike.monthlyRate}">₹5000</span>
+                        </div>
+                    </div>
+                    <div class="bike-actions">
+                        <a th:href="@{'/bikes/' + ${bike.id}}" class="btn btn-outline">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        <a th:href="@{'/bookings/create?bikeId=' + ${bike.id}}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Book Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="no-results" th:if="${#lists.size(bikes) == 0}">
+            <i class="fas fa-search"></i>
+            <h3>No bikes found</h3>
+            <p>Try adjusting your search criteria or browse all available bikes</p>
+            <a href="/bikes" class="btn btn-primary">Browse All Bikes</a>
+        </div>
+    </div>
+
+    <style>
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        .no-results i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .no-results h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .no-results p {
+            margin-bottom: 2rem;
+        }
+    </style>
+</body>
+</html>

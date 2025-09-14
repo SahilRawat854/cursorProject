@@ -69,6 +69,10 @@ public class Bike {
     private Boolean hasHelmet = false;
     private Boolean hasNavigation = false;
     private Boolean isInsured = false;
+    private Integer mileage;
+    private String condition;
+    private Double averageRating = 0.0;
+    private Integer totalReviews = 0;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -175,6 +179,18 @@ public class Bike {
     
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    public Integer getMileage() { return mileage; }
+    public void setMileage(Integer mileage) { this.mileage = mileage; }
+    
+    public String getCondition() { return condition; }
+    public void setCondition(String condition) { this.condition = condition; }
+    
+    public Double getAverageRating() { return averageRating; }
+    public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+    
+    public Integer getTotalReviews() { return totalReviews; }
+    public void setTotalReviews(Integer totalReviews) { this.totalReviews = totalReviews; }
     
     // Enums
     public enum BikeType {

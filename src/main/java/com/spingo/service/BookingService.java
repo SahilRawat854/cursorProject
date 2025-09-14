@@ -49,6 +49,10 @@ public class BookingService {
         return bookingRepository.findActiveBookingsForBike(bike);
     }
 
+    public Optional<Booking> getBookingById(Long id) {
+        return bookingRepository.findById(id);
+    }
+    
     public Optional<Booking> findById(Long id) {
         return bookingRepository.findById(id);
     }
@@ -135,5 +139,21 @@ public class BookingService {
 
     public long getUserCompletedBookingsCount(User user) {
         return bookingRepository.countCompletedBookingsByUser(user);
+    }
+    
+    public List<Booking> getBookingsByUser(User user) {
+        return bookingRepository.findByUser(user);
+    }
+    
+    public List<Booking> getRecentBookingsForOwner(User owner) {
+        return bookingRepository.findRecentBookingsForOwner(owner);
+    }
+    
+    public List<Booking> getUpcomingBookings(User user) {
+        return bookingRepository.findUpcomingBookings(user, LocalDateTime.now());
+    }
+    
+    public List<Booking> getActiveBookings(User user) {
+        return bookingRepository.findActiveBookingsByUser(user);
     }
 }

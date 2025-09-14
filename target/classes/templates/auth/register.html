@@ -3,154 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - SpinGO</title>
+    <title>Sign Up - SpinGO</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 <body class="auth-body">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="top-bar-content">
+                <span class="page-title">Bike Rental Web App Pages</span>
+                <button class="share-btn">Share</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav-brand">
+                <div class="logo">
+                    <div class="logo-icon">S</div>
+                    <span>SpinGO</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <a href="/login" class="back-link">Back to Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-step active">
+                    <div class="step-number">1</div>
+                    <span class="step-label">User Type</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Personal Info</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <span class="step-label">License Upload</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <span class="step-label">Verification</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">5</div>
+                    <span class="step-label">Complete</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
-                <h1>Join SpinGO</h1>
-                <p>Create your account and start your journey</p>
+                <h1>Choose Your Account Type</h1>
+                <p>Select the option that best describes how you plan to use SpinGO</p>
             </div>
 
             <!-- Account Type Selection -->
-            <div class="account-type-selector">
-                <button class="account-type-btn active" data-type="individual">
-                    <i class="fas fa-bicycle"></i>
-                </button>
-                <button class="account-type-btn" data-type="business">
-                    <i class="fas fa-building"></i>
-                </button>
-                <button class="account-type-btn" data-type="delivery">
-                    <i class="fas fa-truck"></i>
-                </button>
-                <button class="account-type-btn" data-type="customer">
-                    <i class="fas fa-user"></i>
-                </button>
-            </div>
-
-            <!-- Account Type Details -->
-            <div class="account-type-details">
-                <div class="account-type-info active" id="individual-info">
-                    <div class="account-icon">
+            <div class="account-types-grid">
+                <div class="account-type-card" data-type="individual">
+                    <div class="account-type-icon">
                         <i class="fas fa-bicycle"></i>
                     </div>
                     <h3>Individual Owner</h3>
-                    <p>Rent out your personal bike</p>
+                    <p>Rent out your personal bike to earn extra income</p>
+                    <div class="account-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>List your bike</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Manage bookings</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Set your rates</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Earn money</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="account-type-info" id="business-info">
-                    <div class="account-icon">
+
+                <div class="account-type-card" data-type="business">
+                    <div class="account-type-icon">
                         <i class="fas fa-building"></i>
                     </div>
-                    <h3>Business Owner</h3>
-                    <p>Manage your bike rental business</p>
+                    <h3>Rental Business</h3>
+                    <p>Manage your bike rental business professionally</p>
+                    <div class="account-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Fleet management</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Multiple locations</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Business analytics</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Bulk operations</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="account-type-info" id="delivery-info">
-                    <div class="account-icon">
+
+                <div class="account-type-card" data-type="delivery">
+                    <div class="account-type-icon">
                         <i class="fas fa-truck"></i>
                     </div>
                     <h3>Delivery Partner</h3>
-                    <p>Rent bikes for delivery services</p>
+                    <p>Access bikes for delivery services without ownership</p>
+                    <div class="account-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Quick bike access</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Flexible rentals</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Partner integrations</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Earnings tracking</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="account-type-info" id="customer-info">
-                    <div class="account-icon">
+
+                <div class="account-type-card" data-type="customer">
+                    <div class="account-type-icon">
                         <i class="fas fa-user"></i>
                     </div>
                     <h3>Customer</h3>
-                    <p>Rent bikes for your adventures</p>
+                    <p>Rent bikes from verified owners for personal use</p>
+                    <div class="account-features">
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Browse available bikes</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Secure payments</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>Book instantly</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-check"></i>
+                            <span>24/7 support</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Registration Form -->
-            <form class="auth-form" th:action="@{/register}" method="post" th:object="${user}">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" th:field="*{username}" placeholder="Choose a username" required>
-                        <div th:if="${#fields.hasErrors('username')}" class="field-error" th:errors="*{username}"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" th:field="*{fullName}" placeholder="Enter your full name" required>
-                        <div th:if="${#fields.hasErrors('fullName')}" class="field-error" th:errors="*{fullName}"></div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" th:field="*{email}" placeholder="Enter your email" required>
-                        <div th:if="${#fields.hasErrors('email')}" class="field-error" th:errors="*{email}"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" th:field="*{phone}" placeholder="Enter your phone number" required>
-                        <div th:if="${#fields.hasErrors('phone')}" class="field-error" th:errors="*{phone}"></div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="age">Age</label>
-                        <input type="number" id="age" th:field="*{age}" placeholder="Enter your age" min="18" max="100" required>
-                        <div th:if="${#fields.hasErrors('age')}" class="field-error" th:errors="*{age}"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="drivingLicense">Driving License</label>
-                        <input type="text" id="drivingLicense" th:field="*{drivingLicense}" placeholder="Enter driving license number" required>
-                        <div th:if="${#fields.hasErrors('drivingLicense')}" class="field-error" th:errors="*{drivingLicense}"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="address">Address</label>
-                    <textarea id="address" th:field="*{address}" placeholder="Enter your complete address" rows="3" required></textarea>
-                    <div th:if="${#fields.hasErrors('address')}" class="field-error" th:errors="*{address}"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="password-input">
-                        <input type="password" id="password" th:field="*{password}" placeholder="Create a password" required>
-                        <button type="button" class="password-toggle" onclick="togglePassword()">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    <div th:if="${#fields.hasErrors('password')}" class="field-error" th:errors="*{password}"></div>
-                </div>
-
-                <input type="hidden" id="accountType" th:field="*{accountType}" value="INDIVIDUAL_OWNER">
-
-                <button type="submit" class="btn btn-signin">
-                    Create Account as <span id="account-type-text">Individual Owner</span>
+            <div class="auth-actions">
+                <button class="btn btn-cta" id="continue-btn" disabled>
+                    Continue <i class="fas fa-arrow-right"></i>
                 </button>
-            </form>
-
-            <!-- Separator -->
-            <div class="auth-separator">
-                <span>OR</span>
-            </div>
-
-            <!-- Login Link -->
-            <div class="auth-footer">
-                <p>Already have an account?</p>
-                <a href="/login" class="btn btn-create-account">Sign In</a>
-            </div>
-
-            <!-- Error/Success Messages -->
-            <div th:if="${error}" class="error-message">
-                <i class="fas fa-exclamation-circle"></i>
-                <span th:text="${error}"></span>
-            </div>
-            <div th:if="${success}" class="success-message">
-                <i class="fas fa-check-circle"></i>
-                <span th:text="${success}"></span>
             </div>
         </div>
     </div>
 
     <script th:src="@{/js/auth.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const accountCards = document.querySelectorAll('.account-type-card');
+            const continueBtn = document.getElementById('continue-btn');
+            let selectedType = null;
+
+            accountCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remove active class from all cards
+                    accountCards.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked card
+                    this.classList.add('active');
+                    
+                    // Get selected type
+                    selectedType = this.dataset.type;
+                    
+                    // Enable continue button
+                    continueBtn.disabled = false;
+                });
+            });
+
+            continueBtn.addEventListener('click', function() {
+                if (selectedType) {
+                    // Redirect to next step with selected type
+                    window.location.href = `/register/step2?type=${selectedType}`;
+                }
+            });
+        });
+    </script>
 </body>
 </html>

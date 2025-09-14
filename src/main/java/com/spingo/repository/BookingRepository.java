@@ -38,4 +38,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.user = :user AND b.status = 'COMPLETED'")
     long countCompletedBookingsByUser(@Param("user") User user);
+    
+    @Query("SELECT b FROM Booking b WHERE b.bike.owner = :owner ORDER BY b.createdAt DESC")
+    List<Booking> findRecentBookingsForOwner(@Param("owner") User owner);
+    
+    @Query("SELECT b FROM Booking b WHERE b.user = :user AND b.startTime > :now ORDER BY b.startTime ASC")
+    List<Booking> findUpcomingBookings(@Param("user") User user, @Param("now") LocalDateTime now);
+    
+    @Query("SELECT b FROM Booking b WHERE b.user = :user AND b.status = 'ACTIVE'")
+    List<Booking> findActiveBookingsByUser(@Param("user") User user);
+    
+    @Query("SELECT b FROM Booking b WHERE b.user = :user AND b.status IN ('CONFIRMED', 'ACTIVE') ORDER BY b.startTime ASC")
+    List<Booking> findCurrentBookingsByUser(@Param("user") User user);
 }

@@ -34,6 +34,40 @@ public class AuthController {
         model.addAttribute("user", new User());
         return "auth/register";
     }
+    
+    @PostMapping("/register/step2")
+    public String registerStep2(@RequestParam String accountType,
+                               @RequestParam String username,
+                               @RequestParam String fullName,
+                               @RequestParam String email,
+                               @RequestParam String phone,
+                               @RequestParam String drivingLicense,
+                               @RequestParam String address,
+                               @RequestParam String city,
+                               @RequestParam String state,
+                               @RequestParam String password,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            User user = new User();
+            user.setUsername(username);
+            user.setFullName(fullName);
+            user.setEmail(email);
+            user.setPhone(phone);
+            user.setDrivingLicense(drivingLicense);
+            user.setAddress(address);
+            user.setCity(city);
+            user.setState(state);
+            user.setPassword(password);
+            user.setAccountType(User.AccountType.valueOf(accountType.toUpperCase()));
+            
+            userService.registerUser(user);
+            redirectAttributes.addFlashAttribute("success", "Registration successful! Please login.");
+            return "redirect:/login";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/register/step2?type=" + accountType;
+        }
+    }
 
     @PostMapping("/register")
     public String registerUser(@Valid User user, BindingResult result, RedirectAttributes redirectAttributes) {
