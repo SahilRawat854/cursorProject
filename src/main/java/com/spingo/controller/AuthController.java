@@ -85,30 +85,6 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
-        if (authentication == null || !authentication.isAuthenticated() || 
-            authentication.getPrincipal().equals("anonymousUser")) {
-            return "redirect:/login";
-        }
-        
-        User user = (User) authentication.getPrincipal();
-        model.addAttribute("user", user);
-        
-        // Redirect based on user role
-        switch (user.getAccountType()) {
-            case INDIVIDUAL_OWNER:
-            case BUSINESS_OWNER:
-                return "redirect:/owner/dashboard";
-            case DELIVERY_PARTNER:
-                return "redirect:/delivery/dashboard";
-            case CUSTOMER:
-            default:
-                return "redirect:/customer/dashboard";
-        }
-    }
 
     @GetMapping("/logout")
     public String logout() {

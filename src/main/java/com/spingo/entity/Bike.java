@@ -70,6 +70,7 @@ public class Bike {
     private Boolean hasNavigation = false;
     private Boolean isInsured = false;
     private Integer mileage;
+    @Column(name = "`condition`")
     private String condition;
     private Double averageRating = 0.0;
     private Integer totalReviews = 0;

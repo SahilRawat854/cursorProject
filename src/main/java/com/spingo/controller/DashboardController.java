@@ -10,6 +10,7 @@ import com.spingo.service.NotificationService;
 import com.spingo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,14 @@ public class DashboardController {
     private NotificationService notificationService;
     
     @GetMapping
-    public String dashboard(Authentication authentication, Model model) {
+    public String dashboard(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated() || 
+            authentication.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/login";
+        }
+        
         User user = (User) authentication.getPrincipal();
         
         // Get user-specific data
@@ -139,7 +147,14 @@ public class DashboardController {
     }
     
     @GetMapping("/analytics")
-    public String analytics(Authentication authentication, Model model) {
+    public String analytics(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null || !authentication.isAuthenticated() || 
+            authentication.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/login";
+        }
+        
         User user = (User) authentication.getPrincipal();
         
         if (user.getAccountType() == User.AccountType.CUSTOMER) {
